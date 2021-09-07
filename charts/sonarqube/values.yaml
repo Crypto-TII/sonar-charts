@@ -69,6 +69,14 @@ ingress:
   # This property allows for reports up to a certain size to be uploaded to SonarQube
   # nginx.ingress.kubernetes.io/proxy-body-size: "8m"
 
+route:
+  enabled: true
+  name: sonarqube
+  targetPort: 9000
+  application: vault
+  annotations:
+  host: chart-example.local
+
 # Additional labels for Ingress manifest file
   # labels:
   #  traffic-type: external
