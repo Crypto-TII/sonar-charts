@@ -20,9 +20,9 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.externalPort }}
-      targetPort: http
+      targetPort: 9000
       protocol: TCP
-      name: http
+      name: https
       {{- if .Values.service.nodePort }}
       nodePort: {{ .Values.service.nodePort }}
       {{- end }}
