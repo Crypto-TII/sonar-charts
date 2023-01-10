@@ -1,5 +1,15 @@
 # Nexus
 
+***This chart has been deprecated, please use one of the other helm charts below***
+
+## Alternative Helm Charts
+
+* [Sonatype's Chart](https://github.com/sonatype/helm3-charts)
+* [PlatformOne's chart](https://repo1.dso.mil/platform-one/big-bang/apps/developer-tools/nexus)
+* [Artifact Hub](https://artifacthub.io)
+
+## Nexus information
+
 [Nexus OSS](https://www.sonatype.com/nexus-repository-oss) is a free open source repository manager. It supports a wide range of package formats and it's used by hundreds of tech companies.
 
 ## Introduction
@@ -110,6 +120,11 @@ The following table lists the configurable parameters of the Nexus chart and the
 | `nexus.readinessProbe.failureThreshold`     | Number of attempts before failure   | 6                                       |
 | `nexus.readinessProbe.timeoutSeconds`       | Time in seconds after readiness probe times out    | `nil`                    |
 | `nexus.readinessProbe.path`                 | Path for ReadinessProbe             | /                                       |
+| `nexus.startupProbe.initialDelaySeconds`    | StartupProbe initial delay          | 30                                      |
+| `nexus.startupProbe.periodSeconds`          | Seconds between polls               | 30                                      |
+| `nexus.startupProbe.failureThreshold`       | Number of attempts before failure   | 6                                       |
+| `nexus.startupProbe.timeoutSeconds`         | Time in seconds after startup probe times out    | `nil`                     |
+| `nexus.startupProbe.path`                   | Path for StartupProbe              | /                                       |
 | `nexus.hostAliases`                         | Aliases for IPs in /etc/hosts       | []                                      |
 | `nexus.context`                             | Non-root path to run Nexus at       | `nil`                                   |
 | `nexus.chownNexusData`                      | Set false to not execute chown to the mounted nexus-data directory at startup | `true` |
@@ -224,7 +239,7 @@ If `nexusProxy.env.cloudIamAuthEnabled` is set to `true` the following variables
 | `nexusProxy.secrets.password`    | Password to the Java Keystore file | `nil`                                                |
 
 ```bash
-helm install --set persistence.enabled=false my-release stable/sonatype-nexus
+helm install --set persistence.enabled=false my-release oteemocharts/sonatype-nexus
 ```
 
 The above example turns off the persistence. Data will not be kept between restarts or deployments
@@ -232,7 +247,7 @@ The above example turns off the persistence. Data will not be kept between resta
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-helm install -f my-values.yaml sonatype-nexus stable/sonatype-nexus
+helm install -f my-values.yaml sonatype-nexus oteemocharts/sonatype-nexus
 ```
 
 ### Persistence

@@ -1,5 +1,13 @@
 # SonarQube
 
+***This chart has been deprecated, please refer to another available chart listed below***
+
+## Alternative Charts
+
+* [PlatformOne's version](https://repo1.dso.mil/platform-one/big-bang/apps/developer-tools/sonarqube)
+* [SonarSource's version](https://github.com/SonarSource/helm-chart-sonarqube)
+* Other versions can be found on artifacthub.io
+
 [SonarQube](https://www.sonarqube.org/) is an open sourced code quality scanning tool.
 
 ## Introduction
@@ -83,7 +91,7 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `OpenShift.enabled`                                      | Define if this deployment is for OpenShift                                                                                | `false`                         |
 | `OpenShift.createSCC`                                    | If this deployment is for OpenShift, define if SCC should be created for sonarqube pod                                    | `true`                          |
 | `image.repository`                                       | image repository                                                                                                          | `sonarqube`                     |
-| `image.tag`                                              | `sonarqube` image tag.                                                                                                    | `8.5.1-community`               |
+| `image.tag`                                              | `sonarqube` image tag.                                                                                                    | `8.9.7-community`               |
 | `image.pullPolicy`                                       | Image pull policy                                                                                                         | `IfNotPresent`                  |
 | `image.pullSecret`                                       | imagePullSecret to use for private repository (commented out)                                                             | `my-repo-secret`                |
 | `securityContext.fsGroup`                                | Group applied to mounted directories/files                                                                                | `1000`                          |
@@ -102,6 +110,7 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `ingress.labels`                                         | Ingress additional labels                                                                                                 | `{}`                            |
 | `ingress.hosts[0].name`                                  | Hostname to your SonarQube installation                                                                                   | `sonar.organization.com`        |
 | `ingress.hosts[0].path`                                  | Path within the URL structure                                                                                             | /                               |
+| `ingress.hosts[0].pathType`                              | [URL match type](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)                             | Prefix                          |
 | `ingress.hosts[0].serviceName`                           | Optional field to override the default serviceName of a path                                                              | None                            |
 | `ingress.hosts[0].servicePort`                           | Optional field to override the default servicePort of a path                                                              | None                            |
 | `ingress.tls`                                            | Ingress secrets for TLS certificates                                                                                      | `[]`                            |
@@ -120,6 +129,7 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `initContainers.securityContext`                         | SecurityContext for init containers                                                                                       | `nil`                           |
 | `initContainers.resources`                               | Resources for init containers                                                                                             | `{}`                            |
 | `extraInitContainers`                                    | Extra init containers to e.g. download required artifacts                                                                 | `{}`                            |
+| `extraContainers`                                        | Extra containers to run alongside sonarqube container                                                                 | `{}`                            |
 | `caCerts.image`                                          | Change init CA certificates container image                                                                               | `adoptopenjdk/openjdk11:alpine` |
 | `caCerts.secret`                                         | Name of the secret containing additional CA certificates                                                                  | `nil`                           |
 | `initSysctl.enabled`                                     | Modify k8s worker to conform to system requirements                                                                       | `true`                          |
@@ -158,12 +168,14 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `sonarSecretKey`                                         | Name of existing secret used for settings encryption                                                                      | None                            |
 | `jdbcDatabaseType`                                       | Type of the JDBC Database driver                                                                                          | `postgreql`                     |
 | `jdbcUrlOverride`                                        | Overrides default JDBC URL creation                                                                                       | None                            |
+| `createPostgresqlSecret`                               | Set to `true` to create the postgresql secret in Sonarqube chart, instead of postgresql chart                          | `true`                        |
 | `postgresql.enabled`                                     | Set to `false` to use external server                                                                                     | `true`                          |
-| `postgresql.existingSecret`                              | Secret containing the password of the external Postgresql server                                                          | `null`                          |
+| `postgresql.existingSecret`                              | Secret containing the password of the external Postgresql server                                                          | `sonar-postgresql`              |
+| `postgresql.secretKey`                                  |                                                                                                                            | `postgresql-password`           |
 | `postgresql.existingSecretPasswordKey`                   | Secret Key containing the password of the external Postgresql server                                                      | `postgresql-password`           |
 | `postgresql.postgresqlServer`                            | Hostname of the external Postgresql server                                                                                | `null`                          |
 | `postgresql.postgresqlUsername`                          | Postgresql database user                                                                                                  | `sonarUser`                     |
-| `postgresql.postgresqlPassword`                          | Postgresql database password                                                                                              | `sonarPass`                     |
+| `postgresql.postgresqlPassword`                          | Postgresql database password                                                                                              | `""`                     |
 | `postgresql.postgresqlDatabase`                          | Postgresql database name                                                                                                  | `sonarDB`                       |
 | `postgresql.service.port`                                | Postgresql port                                                                                                           | `5432`                          |
 | `postgresql.resources.requests.memory`                   | Postgresql memory request                                                                                                 | `256Mi`                         |

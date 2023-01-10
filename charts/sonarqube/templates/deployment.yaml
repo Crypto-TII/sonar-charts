@@ -196,6 +196,9 @@ spec:
 {{ toYaml .Values.affinity | indent 8 }}
     {{- end }}
       containers:
+      {{- if .Values.extraContainers }}
+        {{- toYaml .Values.extraContainers | nindent 8 }}
+      {{- end }}
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -217,8 +220,8 @@ spec:
             - name: SONAR_JDBC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "postgresql.secret" . }}
-                  key: {{ template "postgresql.secretPasswordKey" . }}
+                  name: {{- if .Values.postgresql.existingSecret }} {{ .Values.postgresql.existingSecret }} {{ else }} {{ .Release.Name }}-postgresql {{- end }}
+                  key: {{ .Values.postgresql.secretKey }}
             {{- with .Values.env }}
             {{- . | toYaml | trim | nindent 12 }}
             {{- end }}

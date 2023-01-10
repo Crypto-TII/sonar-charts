@@ -20,7 +20,7 @@ initAdminPassword:
 
 nexus:
   imageName: quay.io/travelaudience/docker-nexus
-  imageTag: 3.27.0
+  imageTag: 3.38.1-01
   imagePullPolicy: IfNotPresent
   # Uncomment this to scheduler pods on priority
   # priorityClassName: "high-priority"
@@ -83,6 +83,12 @@ nexus:
     failureThreshold: 6
     # timeoutSeconds: 10
     path: /
+  # startupProbe:
+  #   initialDelaySeconds: 10
+  #   periodSeconds: 10
+  #   failureThreshold: 300
+  #   # timeoutSeconds: 10
+  #   path: /
   # hostAliases allows the modification of the hosts file inside a container
   hostAliases: []
   # - ip: "192.168.1.10"
@@ -239,6 +245,7 @@ rbac:
 ingress:
   enabled: false
   path: /
+  pathType: Prefix
   labels: {}
   annotations: {}
   # # NOTE: Can't use 'false' due to https://github.com/jetstack/kube-lego/issues/173.
@@ -259,9 +266,12 @@ ingress:
   #         serviceName: additional-svc
   #         servicePort: 80
 
+  # className: nginx
+
 ingressDocker:
   enabled: false
   path: /
+  pathType: Prefix
   labels: {}
   annotations: {}
   # # NOTE: Can't use 'false' due to https://github.com/jetstack/kube-lego/issues/173.
@@ -281,6 +291,8 @@ ingressDocker:
   #     - backend:
   #         serviceName: additional-svc
   #         servicePort: 80
+
+  # className: nginx
 
 affinity: {}
 

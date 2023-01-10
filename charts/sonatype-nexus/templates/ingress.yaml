@@ -1,5 +1,22 @@
 {{- if .Values.ingress.enabled -}}
-apiVersion: {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }} networking.k8s.io/v1beta1 {{- else }} extensions/v1beta1 {{- end }}
+
+{{- $serviceName := include "nexus.fullname" . -}}
+{{- if .Values.nexusProxy.svcName }}
+  {{- $serviceName = .Values.nexusProxy.svcName -}}
+{{- end }}
+
+{{- $servicePort := .Values.nexus.nexusPort -}}
+{{- if .Values.nexusProxy.enabled }}
+  {{- $servicePort = .Values.nexusProxy.port -}}
+{{- end }}
+
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ template "nexus.fullname" . }}
@@ -14,23 +31,27 @@ metadata:
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
   rules:
 {{- if .Values.nexusProxy.env.nexusHttpHost }}
     - host: {{ .Values.nexusProxy.env.nexusHttpHost }}
       http:
         paths:
-          - backend:
-            {{- if .Values.nexusProxy.svcName }}
-              serviceName: {{ .Values.nexusProxy.svcName }}
+          - path: {{ .Values.ingress.path }}
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
             {{- else }}
-              serviceName: {{ template "nexus.fullname" . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
             {{- end }}
-{{- if .Values.nexusProxy.enabled }}
-              servicePort: {{ .Values.nexusProxy.port }}
-{{- else }}
-              servicePort: {{ .Values.nexus.nexusPort }}
-{{- end }}
-            path: {{ .Values.ingress.path }}
 {{- end }}
   {{- with .Values.ingress.rules }}
     {{- toYaml . | nindent 4 }}

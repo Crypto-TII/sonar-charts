@@ -1,8 +1,25 @@
 {{- if .Values.ingressDocker.enabled }}
-apiVersion: {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }} networking.k8s.io/v1beta1 {{- else }} extensions/v1beta1 {{- end }}
+
+{{- $serviceName := include "nexus.fullname" . -}}
+{{- if .Values.nexusProxy.svcName }}
+  {{- $serviceName = .Values.nexusProxy.svcName -}}
+{{- end }}
+
+{{- $servicePort := .Values.nexus.dockerPort -}}
+{{- if .Values.nexusProxy.enabled }}
+  {{- $servicePort = .Values.nexusProxy.port -}}
+{{- end }}
+
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  name: {{ template "nexus.ingres.docker" . }}
+  name: {{ template "nexus.ingress.docker" . }}
   namespace: {{ template "nexus.namespace" . }}
   labels:
 {{ include "nexus.labels" . | indent 4 }}
@@ -14,28 +31,32 @@ metadata:
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
+  {{- if .Values.ingressDocker.className }}
+  ingressClassName: {{ .Values.ingressDocker.className }}
+  {{- end }}
   rules:
   {{- if .Values.nexusProxy.env.nexusDockerHost }}
     - host: {{ .Values.nexusProxy.env.nexusDockerHost }}
       http:
         paths:
-          - backend:
-            {{- if .Values.nexusProxy.svcName }}
-              serviceName: {{ .Values.nexusProxy.svcName }}
+          - path: {{ .Values.ingressDocker.path }}
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+            pathType: {{ .Values.ingressDocker.pathType }}
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
             {{- else }}
-              serviceName: {{ template "nexus.fullname" . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
             {{- end }}
-            {{- if .Values.nexusProxy.enabled }}
-              servicePort: {{ .Values.nexusProxy.port }}
-            {{- else }}
-              servicePort: {{ .Values.nexus.dockerPort }}
-            {{- end }}
-            path: {{ .Values.ingress.path }}
   {{- end }}
   {{- with .Values.ingressDocker.rules }}
     {{- toYaml . | nindent 4 }}
   {{- end -}}
-{{- if .Values.ingress.tls.enabled }}
+{{- if .Values.ingressDocker.tls.enabled }}
   tls:
     - hosts:
       {{- if .Values.nexusProxy.env.nexusDockerHost }}
